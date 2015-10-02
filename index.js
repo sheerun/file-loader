@@ -16,12 +16,11 @@ module.exports = function(content) {
 	});
 	this.emitFile(url, content);
 
-	url = "__webpack_public_path__ + " + JSON.stringify(url);
+	var wrapper = query.wrapper || '[url]';
 
-	if (query.require) {
-		return "module.exports = require(" + url + ")";
-	} else {
-		return "module.exports = " + url;
-	}
+	url = (this.options.output.publicPath || '') + url;
+	url = wrapper.replace('[url]', JSON.stringify(url));
+
+	return "module.exports = " + url;
 }
 module.exports.raw = true;
