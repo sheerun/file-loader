@@ -20,8 +20,27 @@ function run(resourcePath, query, content) {
 	return result;
 }
 
+function run_require(resourcePath, query, content) {
+	content = content || new Buffer("1234");
+	var result = null;
+	var context = {
+		resourcePath: resourcePath,
+		query: "?" + query,
+		options: {
+			context: "/this/is/the/context"
+		},
+		emitFile: function(url, content2) { }
+	};
+
+	return fileLoader.call(context, content);
+}
+
 function test(excepted, resourcePath, query, content) {
 	run(resourcePath, query, content).should.be.eql(excepted);
+}
+
+function test_require(excepted, resourcePath, query, content) {
+	run_require(resourcePath, query, content).should.be.eql(excepted);
 }
 
 describe("correct-filename", function() {
@@ -56,5 +75,16 @@ describe("correct-filename", function() {
 		test("sntmopgidsdqrofkjywoyldtiij.txt", "/file.txt", "name=[hash:base26].[ext]");
 		test("sntmopgids.txt", "/file.txt", "name=[hash:base26:10].[ext]");
 	});
-	
+	it("should output proper require code (without require flag)", function() {
+		test_require(
+			"module.exports = __webpack_public_path__ + \"file.txt\"",
+			"/file.txt", "name=[name].[ext]"
+		);
+	});
+	it("should output proper require code (with require flag)", function() {
+		test_require(
+			"module.exports = require(__webpack_public_path__ + \"file.txt\")",
+			"/file.txt", "name=[name].[ext]&require=1"
+		);
+	});
 });

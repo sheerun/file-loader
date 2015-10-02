@@ -15,6 +15,13 @@ module.exports = function(content) {
 		regExp: query.regExp
 	});
 	this.emitFile(url, content);
-	return "module.exports = __webpack_public_path__ + " + JSON.stringify(url);
+
+	url = "__webpack_public_path__ + " + JSON.stringify(url);
+
+	if (query.require) {
+		return "module.exports = require(" + url + ")";
+	} else {
+		return "module.exports = " + url;
+	}
 }
 module.exports.raw = true;
